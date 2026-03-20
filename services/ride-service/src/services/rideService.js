@@ -6,6 +6,21 @@ class RideService {
   async createRide(data) {
     return await this.rideRepository.createRide(data);
   }
+
+  async getRideById(id) {
+    return await this.rideRepository.getRideById(id);
+  }
+
+  async updateRideStatus(id, status) {
+    
+    const allowedStatus = ["REQUESTED", "MATCHED", "STARTED", "COMPLETED", "CANCELLED"];
+
+    if (!allowedStatus.includes(status)) {
+      throw new Error("Invalid status");
+    }
+    
+    return await this.rideRepository.updateRideStatus(id, status);
+  }
 }
 
 module.exports = RideService;
