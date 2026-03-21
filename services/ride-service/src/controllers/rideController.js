@@ -15,6 +15,7 @@ class RideController {
 
       res.status(201).json(ride);
     } catch (err) {
+      console.error(err);
       res.status(500).json({ error: err.message });
     }
   };

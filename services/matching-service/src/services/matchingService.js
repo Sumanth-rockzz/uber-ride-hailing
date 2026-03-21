@@ -2,7 +2,7 @@
 
 //const activeMatches = new Map();
 const redis = require('../config/redis');
-
+const kafkaProducer = require('../kafka/producer');
 class MatchingService {
   constructor(driverClient, rideClient, tripClient) {
     this.driverClient = driverClient;
@@ -31,31 +31,40 @@ class MatchingService {
   }
 
   async acceptDriver(rideId, driverId) {
+    try {
+      const key = `ride_lock:${rideId}`;
 
-    const key = `ride_lock:${rideId}`;
+      const rideStatus = await redis.get(`ride:${rideId}`);
 
-    const isLocked = await redis.set(
+      if (rideStatus === 'MATCHED') {
+        return { success: false, message: 'Ride already matched' };
+      }
+
+      const isLocked = await redis.set(
         key,
         driverId,
-        'NX',   // only set if not exists
-        'EX',   // expiry
-        30      // 30 seconds lock
-    );
+        'NX', // only set if not exists
+        'EX', // expiry
+        30    // 30 seconds lock
+      );
 
-    if (!isLocked) {
+      if (!isLocked) {
         return { success: false };
-    }
-    
-    await this.rideClient.updateRideStatus(rideId, 'MATCHED');
+      }
 
-    const trip = await this.tripClient.createTrip(rideId, driverId);
+      await redis.set(`ride:${rideId}`, 'MATCHED');
 
-    return {
-        success: true,
+      await kafkaProducer.sendEvent('ride.matched', {
         rideId,
-        driverId,
-        trip
-    };
+        driverId
+      });
+
+      return { success: true, rideId, driverId };
+    } catch (err) {
+      console.error("FAILED FLOW", err);
+
+      return { success: false, message: "Internal error" };
+    }
   }
 
 }

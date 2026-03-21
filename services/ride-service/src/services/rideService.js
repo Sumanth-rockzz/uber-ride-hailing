@@ -1,10 +1,13 @@
+const redis = require('../config/redis');
 class RideService {
   constructor(rideRepository) {
     this.rideRepository = rideRepository;
   }
 
   async createRide(data) {
-    return await this.rideRepository.createRide(data);
+    const ride = await this.rideRepository.createRide(data);
+    await redis.set(`ride:${data.id}`, 'REQUESTED');
+    return ride;
   }
 
   async getRideById(id) {

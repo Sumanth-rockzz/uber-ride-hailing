@@ -32,8 +32,12 @@ app.use(express.json());
 const rideRepo = new PostgresRideRepository();
 const rideService = new RideService(rideRepo);
 const rideController = new RideController(rideService);
+const startConsumer = require('./kafka/consumer');
 
 app.use('/api', rideRoutes(rideController));
+
+// Start Kafka consumer
+startConsumer(rideService);
 
 app.listen(3001, () => {
   console.log('Ride Service running on port 3001');

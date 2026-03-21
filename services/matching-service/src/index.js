@@ -6,6 +6,7 @@ const TripClient = require('./clients/tripClient');
 const MatchingService = require('./services/matchingService');
 const MatchingController = require('./controllers/matchingController');
 const matchRoutes = require('./routes/matchingRoutes');
+const { connectProducer } = require('./kafka/producer');
 
 const app = express();
 app.use(express.json());
@@ -16,6 +17,12 @@ const tripClient = new TripClient();
 
 const matchingService = new MatchingService(driverClient, rideClient, tripClient);
 const controller = new MatchingController(matchingService);
+
+
+
+(async () => {
+  await connectProducer();   // ✅ MUST DO THIS
+})();
 
 app.use('/api', matchRoutes(controller));
 
