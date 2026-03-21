@@ -1,29 +1,25 @@
 // src/index.js
 const express = require('express');
-const { Pool } = require('pg');
+
+const PostgresTripRepository = require('./repositories/postgresTripRepository');
+const TripService = require('./services/tripService.js');
+const TripController = require('./controllers/tripController.js');
+const tripRoutes = require('./routes/tripRoutes.js');
 
 const app = express();
 app.use(express.json());
 
-const pool = new Pool({
-  user: 'admin',
-  host: 'localhost',
-  database: 'postgres',
-  password: 'admin',
-  port: 5433,
-});
+// Dependency Injection
+const tripRepo = new PostgresTripRepository();
+const tripService = new TripService(tripRepo);
+const tripController = new TripController(tripService);
+const startConsumer = require('./kafka/consumer.js');
 
-app.post('/api/trips', async (req, res) => {
-  const { rideId, driverId } = req.body;
+app.use('/api', tripRoutes(tripController));
 
-  const result = await pool.query(
-    `INSERT INTO trips (ride_id, driver_id, status)
-     VALUES ($1, $2, $3) RETURNING *`,
-    [rideId, driverId, 'STARTED']
-  );
+// Start Kafka consumer
+startConsumer(tripService);
 
-  res.json(result.rows[0]);
-});
 
 app.listen(3004, () => {
   console.log('Trip Service running on port 3004');
