@@ -27,9 +27,9 @@ class MatchingController {
 
   accept = async (req, res) => {
     try {
-        const { rideId, driverId } = req.body;
+        const { rideId, driverId , idempotencyKey } = req.body;
 
-        const result = await this.matchingService.acceptDriver(rideId, driverId);
+        const result = await this.matchingService.acceptDriver(rideId, driverId, idempotencyKey);
 
         if (!result.success) {
         return res.status(400).json({ message: "Ride already taken" });

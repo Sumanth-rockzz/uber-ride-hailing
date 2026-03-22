@@ -30,9 +30,23 @@ class MatchingService {
 
   }
 
-  async acceptDriver(rideId, driverId) {
+  async acceptDriver(rideId, driverId, idempotencyKey) {
     try {
       const key = `ride_lock:${rideId}`;
+
+      const idemKey = `idem:${idempotencyKey}`;
+
+      const alreadyProcessed = await redis.set(
+        idemKey,
+        "PROCESSING",
+        'NX',
+        'EX',
+        300
+      );
+
+      if (!alreadyProcessed) {
+        return { success: true, message: "Already processed" };
+      }
 
       const rideStatus = await redis.get(`ride:${rideId}`);
 
