@@ -6,6 +6,7 @@ async createTrip({ rideId, driverId }) {
   const result = await pool.query(
     `INSERT INTO trips (ride_id, driver_id, status)
       VALUES ($1, $2, $3)
+      ON CONFLICT (ride_id) DO NOTHING
       RETURNING *`,
     [rideId, driverId, 'STARTED']
   );

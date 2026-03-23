@@ -14,11 +14,15 @@ const tripRepo = new PostgresTripRepository();
 const tripService = new TripService(tripRepo);
 const tripController = new TripController(tripService);
 const startConsumer = require('./kafka/consumer.js');
+const startDLQConsumer = require('./kafka/DLQConsumer.js');
 
 app.use('/api', tripRoutes(tripController));
 
 // Start Kafka consumer
 startConsumer(tripService);
+
+// Start DLQ consumer
+startDLQConsumer(); 
 
 
 app.listen(3004, () => {

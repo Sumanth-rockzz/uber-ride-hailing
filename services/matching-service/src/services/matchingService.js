@@ -70,7 +70,8 @@ class MatchingService {
 
       await kafkaProducer.sendEvent('ride.matched', {
         rideId,
-        driverId
+        driverId,
+        retryCount: 0,
       });
 
       return { success: true, rideId, driverId };
