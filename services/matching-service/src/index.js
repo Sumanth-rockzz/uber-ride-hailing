@@ -7,6 +7,7 @@ const MatchingService = require('./services/matchingService');
 const MatchingController = require('./controllers/matchingController');
 const matchRoutes = require('./routes/matchingRoutes');
 const { connectProducer } = require('./kafka/producer');
+require('dotenv').config();
 
 const app = express();
 app.use(express.json());
@@ -25,6 +26,9 @@ const controller = new MatchingController(matchingService);
 })();
 
 app.use('/api', matchRoutes(controller));
+app.get('/health', (req, res) => {
+  res.send('Matching Service is running');
+});
 
 app.listen(3003, () => {
   console.log('Matching Service running on port 3003');

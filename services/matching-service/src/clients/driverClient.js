@@ -1,10 +1,11 @@
 // src/clients/driverClient.js
 const axios = require('axios');
+const driverServiceUrl = process.env.DRIVER_SERVICE_URL || 'http://driver-service:3002';
 
 class DriverClient {
   async findNearbyDrivers(lat, lng) {
     const response = await axios.get(
-      `http://localhost:3002/api/drivers/nearby`,
+      `${driverServiceUrl}/api/drivers/nearby`,
       {
         params: { lat, lng, radius: 5 }
       }

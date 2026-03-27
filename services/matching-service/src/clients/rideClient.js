@@ -1,10 +1,11 @@
 // src/clients/rideClient.js
 const axios = require('axios');
+const rideServiceUrl = process.env.RIDE_SERVICE_URL || 'http://ride-service:3001';
 
 class RideClient {
   async updateRideStatus(rideId, status) {
     const response = await axios.patch(
-      `http://localhost:3001/api/rides/${rideId}/status`,
+      `${rideServiceUrl}/api/rides/${rideId}/status`,
       { status }
     );
 

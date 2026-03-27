@@ -1,6 +1,68 @@
 version: '3.8'
 
 services:
+
+  ride-service:
+    build: ./services/ride-service
+    container_name: ride-service
+    ports:
+      - "3001:3001"
+    depends_on:
+      - redis
+      - kafka
+      - postgres
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - KAFKA_BROKER=kafka:9092
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - PORT=3001
+    restart: always
+  driver-service:
+    build: ./services/driver-service
+    container_name: driver-service
+    ports:
+      - "3002:3002"
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PORT=3002 
+    restart: always
+  matching-service:
+    build: ./services/matching-service
+    container_name: matching-service
+    ports:
+      - "3003:3003"
+    depends_on:
+      - redis
+      - kafka
+      - driver-service
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - KAFKA_BROKER=kafka:9092
+      - DRIVER_SERVICE_URL=http://driver-service:3002
+      - RIDE_SERVICE_URL=http://ride-service:3001
+      - TRIP_SERVICE_URL=http://trip-service:3004
+      - PORT=3003
+    restart: unless-stopped
+  trip-service:
+    build: ./services/trip-service
+    container_name: trip-service
+    ports:
+      - "3004:3004"
+    depends_on:
+      - kafka
+      - postgres
+    environment:
+      KAFKA_BROKERS: kafka:9092
+      DB_HOST: postgres
+      DB_PORT: 5432
+      PORT: 3004
+    restart: always
   postgres:
     image: postgres:15
     container_name: postgres
@@ -13,10 +75,12 @@ services:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   redis:
     image: redis:7
     container_name: redis
+    restart: always
     ports:
       - "6379:6379"
     volumes:
@@ -25,19 +89,28 @@ services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     container_name: zookeeper
+    restart: always
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
 
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     container_name: kafka
+    restart: always
     ports:
-      - "9092:9092"
+      - "9092:9092"   # internal
+      - "9093:9093"   # external
+    depends_on:
+      - zookeeper
     environment:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
+
 volumes:
-    postgres_data:
-    redis_data:
+  postgres_data:
+  redis_data:

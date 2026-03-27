@@ -18,6 +18,10 @@ const startConsumer = async (tripService) => {
         await tripService.createTrip(data);
         console.log('Trip created via Kafka');
       } catch (error) {
+         if (error.code === '23505') {
+            console.log("Duplicate trip ignored ✅");
+            return;
+        }
         console.error('Error creating trip via Kafka:', error);
 
         const retryCount = data.retryCount || 0;

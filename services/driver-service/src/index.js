@@ -5,6 +5,7 @@ const RedisDriverRepository = require('./repositories/redisDriverRepository');
 const DriverService = require('./services/driverService');
 const DriverController = require('./controllers/driverController');
 const driverRoutes = require('./routes/driverRoutes');
+require('dotenv').config();
 
 const app = express();
 app.use(express.json());
@@ -14,7 +15,10 @@ const driverService = new DriverService(driverRepo);
 const driverController = new DriverController(driverService);
 
 app.use('/api', driverRoutes(driverController));
+app.use('/health', (req, res) => {
+  res.send('Driver Service Running');
+});
 
-app.listen(3002, () => {
-  console.log('Driver Service running on port 3002');
+app.listen(process.env.PORT || 3002, () => {
+  console.log('Driver Service running on port ' + (process.env.PORT || 3002));
 });

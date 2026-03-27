@@ -5,7 +5,12 @@ const pool = require('../config/db');
 const consumer = kafka.consumer({ groupId: 'ride-group' });
 
 const startConsumer = async (rideService) => {
-  await consumer.connect();
+  try {
+    await consumer.connect();
+    console.log("Kafka connected ✅");
+  } catch (err) {
+    console.error("Kafka connection failed ❌", err.message);
+  }
   await consumer.subscribe({ topic: 'ride.matched' });
 
   await consumer.run({

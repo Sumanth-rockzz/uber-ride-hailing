@@ -18,6 +18,7 @@
 //   console.log('Ride Service running on port 3001');
 // });
 
+require('dotenv').config();
 const express = require('express');
 
 const PostgresRideRepository = require('./repositories/postgresRideRepository');
@@ -35,6 +36,9 @@ const rideController = new RideController(rideService);
 const startConsumer = require('./kafka/consumer');
 
 app.use('/api', rideRoutes(rideController));
+app.use('/health', (req, res) => {
+  res.send('Ride Service Running');
+});
 
 // Start Kafka consumer
 startConsumer(rideService);

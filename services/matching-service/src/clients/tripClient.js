@@ -1,10 +1,11 @@
 // src/clients/tripClient.js
 const axios = require('axios');
+const tripServiceUrl = process.env.TRIP_SERVICE_URL || 'http://trip-service:3004';
 
 class TripClient {
   async createTrip(rideId, driverId) {
     const response = await axios.post(
-      'http://localhost:3004/api/trips',
+      `${tripServiceUrl}/api/trips`,
       { rideId, driverId }
     );
 
