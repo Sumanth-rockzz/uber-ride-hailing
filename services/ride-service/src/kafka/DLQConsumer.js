@@ -28,7 +28,7 @@
 
 // kafka/dlqConsumer.js
 
-const sub = require('../config/redis');
+const sub = require('../config/redisSubscriber');
 
 const startDLQConsumer = async () => {
   await sub.subscribe("ride.matched.DLQ");

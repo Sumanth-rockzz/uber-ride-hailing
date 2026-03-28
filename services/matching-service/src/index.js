@@ -6,7 +6,7 @@ const TripClient = require('./clients/tripClient');
 const MatchingService = require('./services/matchingService');
 const MatchingController = require('./controllers/matchingController');
 const matchRoutes = require('./routes/matchingRoutes');
-const { connectProducer } = require('./kafka/producer');
+//const { connectProducer } = require('./kafka/producer');
 require('dotenv').config();
 
 const app = express();
@@ -21,9 +21,9 @@ const controller = new MatchingController(matchingService);
 
 
 
-(async () => {
-  await connectProducer();   // ✅ MUST DO THIS
-})();
+// (async () => {
+//   await connectProducer();   // ✅ MUST DO THIS
+// })();
 
 app.use('/api', matchRoutes(controller));
 app.get('/health', (req, res) => {
