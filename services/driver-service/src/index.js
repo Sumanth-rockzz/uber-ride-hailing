@@ -1,11 +1,12 @@
 // src/index.js
 const express = require('express');
+require('dotenv').config();
 
 const RedisDriverRepository = require('./repositories/redisDriverRepository');
 const DriverService = require('./services/driverService');
 const DriverController = require('./controllers/driverController');
 const driverRoutes = require('./routes/driverRoutes');
-require('dotenv').config();
+
 
 const app = express();
 app.use(express.json());

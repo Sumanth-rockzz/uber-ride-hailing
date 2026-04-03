@@ -11,8 +11,26 @@ async createTrip({ rideId, driverId }) {
     [rideId, driverId, 'STARTED']
   );
 
-  return result.rows[0];
-}
-}
+    return result.rows[0];
+  }
+  
+  async getTripById(tripId) {
+    const result = await pool.query(
+      `SELECT * FROM trips WHERE id = $1`,
+      [tripId]
+    );
+    return result.rows[0];
+  }
+  
+  async updateStatus(tripId, status) {
+    const result = await pool.query(
+      `UPDATE trips SET status = $1 WHERE id = $2 RETURNING *`,
+      [status, tripId]
+    );
+    return result.rows[0];
+  }
 
-module.exports = PostgresTripRepository;
+
+  }
+
+  module.exports = PostgresTripRepository;

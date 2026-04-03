@@ -1,4 +1,5 @@
 const express = require('express');
+require('dotenv').config();
 
 const DriverClient = require('./clients/driverClient');
 const RideClient = require('./clients/rideClient');
@@ -6,8 +7,8 @@ const TripClient = require('./clients/tripClient');
 const MatchingService = require('./services/matchingService');
 const MatchingController = require('./controllers/matchingController');
 const matchRoutes = require('./routes/matchingRoutes');
-//const { connectProducer } = require('./kafka/producer');
-require('dotenv').config();
+const RedisBroker = require('./brokers/redisBroker');
+
 
 const app = express();
 app.use(express.json());
@@ -15,15 +16,10 @@ app.use(express.json());
 const driverClient = new DriverClient();
 const rideClient = new RideClient();
 const tripClient = new TripClient();
+const broker = new RedisBroker();
 
-const matchingService = new MatchingService(driverClient, rideClient, tripClient);
+const matchingService = new MatchingService(driverClient, rideClient, tripClient, broker);
 const controller = new MatchingController(matchingService);
-
-
-
-// (async () => {
-//   await connectProducer();   // ✅ MUST DO THIS
-// })();
 
 app.use('/api', matchRoutes(controller));
 app.get('/health', (req, res) => {

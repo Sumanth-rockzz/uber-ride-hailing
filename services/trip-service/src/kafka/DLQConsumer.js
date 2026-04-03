@@ -28,19 +28,25 @@
 
 // kafka/dlqConsumer.js
 
-const sub = require('../config/redis');
+// const redisBroker = require('../brokers/redisBroker');
 
-const startDLQConsumer = async () => {
-  await sub.subscribe("ride.matched.DLQ");
+// const startDLQConsumer = async () => {
+//   await redisBroker.subscribe("ride.matched.DLQ");
 
-  console.log("⚠️ DLQ listening...");
+//   console.log("⚠️ DLQ listening...");
 
-  sub.on("message", (channel, message) => {
-    if (channel !== "ride.matched.DLQ") return;
+//   redisBroker.subscriber.on("message", (channel, message) => {
+//     if (channel !== "ride.matched.DLQ") return;
 
-    const data = JSON.parse(message);
-    console.log("🚨 DLQ EVENT:", data);
-  });
-};
+//     const data = JSON.parse(message);
 
-module.exports = startDLQConsumer;
+//     console.log("🚨 DLQ EVENT:", data);
+
+//     // future:
+//     // - alert system
+//     // - manual retry
+//     // - monitoring dashboard
+//   });
+// };
+
+// module.exports = startDLQConsumer;

@@ -1,7 +1,8 @@
 const redis = require('../config/redis');
 class RideService {
-  constructor(rideRepository) {
+  constructor(rideRepository, broker) {
     this.rideRepository = rideRepository;
+    this.broker = broker;
   }
 
   async createRide(data) {
@@ -15,7 +16,6 @@ class RideService {
   }
 
   async updateRideStatus(id, status) {
-    
     const allowedStatus = ["REQUESTED", "MATCHED", "STARTED", "COMPLETED", "CANCELLED"];
 
     if (!allowedStatus.includes(status)) {

@@ -2,12 +2,12 @@
 
 //const activeMatches = new Map();
 const redis = require('../config/redis');
-const kafkaProducer = require('../kafka/producer');
 class MatchingService {
-  constructor(driverClient, rideClient, tripClient) {
+  constructor(driverClient, rideClient, tripClient, broker) {
     this.driverClient = driverClient;
     this.rideClient = rideClient;
     this.tripClient = tripClient;
+    this.broker = broker;
   }
 
   async matchDriver({ rideId, pickupLat, pickupLng }) {
@@ -68,7 +68,7 @@ class MatchingService {
 
       await redis.set(`ride:${rideId}`, 'MATCHED');
 
-      await kafkaProducer.sendEvent('ride.matched', {
+      await this.broker.publish('ride.matched', {
         rideId,
         driverId,
         retryCount: 0,

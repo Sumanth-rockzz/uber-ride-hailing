@@ -28,30 +28,46 @@
 
 // module.exports = startConsumer;
 
-const sub = require('../config/redisSubscriber');
+// const redisBroker = require('../brokers/redisBroker');
 
-const startConsumer = async (rideService) => {
-  await sub.subscribe("ride.matched");
+// const startConsumer = async (rideService) => {
+//   await redisBroker.subscribe("ride.matched");
+//   await redisBroker.subscribe("payment.completed");
+//   await redisBroker.subscribe("payment.failed");
 
-  console.log("👂 ride-service listening to ride.matched");
+//   console.log("👂 ride-service listening to events");
 
-  sub.on("message", async (channel, message) => {
-    if (channel !== "ride.matched") return;
+//   redisBroker.subscriber.on("message", async (channel, message) => {
+//     const data = JSON.parse(message);
 
-    const data = JSON.parse(message);
+//     console.log("ride service message received", channel, data);
 
-    console.log("ride service message received", data);
+//     try {
+//       // ✅ Ride matched
+//       if (channel === "ride.matched") {
+//         await rideService.updateRideStatus(data.rideId, "MATCHED");
+//         console.log("Ride updated to MATCHED ✅");
+//       }
 
-    try {
-      await rideService.updateRideStatus(data.rideId, "MATCHED");
-      console.log("Ride updated via Redis ✅");
-    } catch (err) {
-      console.error("Ride update failed ❌", err.message);
+//       // ✅ Payment success
+//       else if (channel === "payment.completed") {
+//         await rideService.updateRideStatus(data.rideId, "COMPLETED");
+//         console.log("Ride updated to COMPLETED 💰✅");
+//       }
 
-      // DLQ fallback
-      await sub.publish("ride.matched.DLQ", message);
-    }
-  });
-};
+//       // ❌ Payment failed
+//       else if (channel === "payment.failed") {
+//         await rideService.updateRideStatus(data.rideId, "PAYMENT_FAILED");
+//         console.log("Ride updated to PAYMENT_FAILED ❌");
+//       }
 
-module.exports = startConsumer;
+//     } catch (err) {
+//       console.error("Ride update failed ❌", err.message);
+
+//       // DLQ fallback (same pattern you used)
+//       await redisBroker.publish(`${channel}.DLQ`, message);
+//     }
+//   });
+// };
+
+// module.exports = startConsumer;

@@ -18,6 +18,27 @@ class TripController {
     }
   };
 
+  getTripById = async (req, res) => {
+    try {
+      const { tripId } = req.params;
+      const trip = await this.tripService.getTripById(tripId);
+      res.status(200).json(trip);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  };
+
+  completeTrip = async (req, res) => {
+    try {
+      const { tripId } = req.params;
+      const trip = await this.tripService.completeTrip(tripId);
+      res.status(200).json(trip);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  };
+  
+
 }
 
 

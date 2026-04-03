@@ -38,15 +38,15 @@
 
 // For temporary cloud constraints, we are not using kafka for now switched to redis pub/sub  no persistence
 
-const redis = require('../config/redis');
+// const redis = require('../config/redis');
 
-const sendEvent = async (channel, message) => {
-  try {
-    await redis.publish(channel, JSON.stringify(message));
-    console.log("📤 Event published:", channel, message);
-  } catch (err) {
-    console.error("Publish failed ❌", err.message);
-  }
-};
+// const sendEvent = async (channel, message) => {
+//   try {
+//     await redis.publish(channel, JSON.stringify(message));
+//     console.log("📤 Event published:", channel, message);
+//   } catch (err) {
+//     console.error("Publish failed ❌", err.message);
+//   }
+// };
 
-module.exports = { sendEvent };
+// module.exports = { sendEvent };
