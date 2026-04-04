@@ -8,7 +8,7 @@ class TripRepository {
     throw new Error("Not implemented");
   }
   
-  async updateStatus(tripId, status) {
+  async updateTrip(tripId, updates) {
     throw new Error("Not implemented");
   }
 }

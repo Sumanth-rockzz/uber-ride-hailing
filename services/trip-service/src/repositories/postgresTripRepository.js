@@ -22,10 +22,10 @@ async createTrip({ rideId, driverId }) {
     return result.rows[0];
   }
   
-  async updateStatus(tripId, status) {
+  async updateTrip(tripId, updates) {
     const result = await pool.query(
-      `UPDATE trips SET status = $1 WHERE id = $2 RETURNING *`,
-      [status, tripId]
+      `UPDATE trips SET ${Object.keys(updates).map((key, index) => `${key} = $${index + 1}`).join(', ')} WHERE id = $${Object.keys(updates).length + 1} RETURNING *`,
+      [...Object.values(updates), tripId]
     );
     return result.rows[0];
   }
