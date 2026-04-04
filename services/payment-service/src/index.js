@@ -1,5 +1,7 @@
-const express = require('express');
 require('dotenv').config();
+require('newrelic');
+
+const express = require('express');
 
 const RedisBroker = require('./brokers/redisBroker');
 const PaymentService = require('./services/paymentService');

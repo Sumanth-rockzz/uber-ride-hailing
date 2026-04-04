@@ -19,6 +19,8 @@
 // });
 
 require('dotenv').config();
+require('newrelic');
+
 const express = require('express');
 
 const PostgresRideRepository = require('./repositories/postgresRideRepository');

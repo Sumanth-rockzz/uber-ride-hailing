@@ -1,6 +1,7 @@
 // src/index.js
-const express = require('express');
 require('dotenv').config();
+require('newrelic');
+const express = require('express');
 
 const RedisDriverRepository = require('./repositories/redisDriverRepository');
 const DriverService = require('./services/driverService');

@@ -1,4 +1,5 @@
 require('dotenv').config();
+require('newrelic');
 
 const express = require('express');
 const RedisBroker = require('./brokers/RedisBroker');

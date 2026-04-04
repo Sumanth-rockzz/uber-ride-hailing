@@ -1,5 +1,7 @@
-const express = require('express');
 require('dotenv').config();
+require('newrelic');
+const express = require('express');
+
 
 const DriverClient = require('./clients/driverClient');
 const RideClient = require('./clients/rideClient');

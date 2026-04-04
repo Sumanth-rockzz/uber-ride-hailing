@@ -1,6 +1,7 @@
 // src/index.js
-const express = require('express');
 require('dotenv').config();
+require('newrelic');
+const express = require('express');
 
 const PostgresTripRepository = require('./repositories/postgresTripRepository');
 const TripService = require('./services/tripService.js');

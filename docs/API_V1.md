@@ -262,5 +262,6 @@ idem:{idempotencyKey}     → idempotency control
 * Redis is used for real-time operations
 * Postgres is used for persistence
 * Kafka ensures decoupling and scalability
+* New Relic APM integrated to monitor API latency, throughput, and performance bottlenecks across services.
 
 ---
