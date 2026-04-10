@@ -1,4 +1,25 @@
 services:
+  auth-service:
+    build: ./services/auth-service
+    container_name: auth-service
+    ports:
+      - "3007:3007"
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: uber
+      DB_USER: admin
+      DB_PASSWORD: admin
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: my-super-secret-jwt-key-in-production
+      AUTH_SERVICE_PORT: 3007
+      PORT: 3007
+    restart: always
+
   ride-service:
     build: ./services/ride-service
     container_name: ride-service
@@ -12,6 +33,7 @@ services:
       REDIS_PORT: 6379
       DB_HOST: postgres
       DB_PORT: 5432
+      JWT_SECRET: my-super-secret-jwt-key-in-production
       PORT: 3001
     restart: always
 
