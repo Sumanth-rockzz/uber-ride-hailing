@@ -1,0 +1,7 @@
+.env
+node_modules/
+
+# New Relic
+newrelic_agent.log
+.nr-*.log
+newrelic/

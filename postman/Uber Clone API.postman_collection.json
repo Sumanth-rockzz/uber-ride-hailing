@@ -1,0 +1,821 @@
+{
+  "info": {
+    "_postman_id": "8ab71e9c-7307-42d7-9174-2e65f6c84de7",
+    "name": "Uber Clone API",
+    "description": "Local Postman collection for the current Uber Clone backend. `POST /api/rides` requires a JWT from auth-service; most other endpoints are currently open.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{auth_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "pickup",
+      "value": "Bangalore"
+    },
+    {
+      "key": "destination",
+      "value": "Airport"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Auth Service",
+      "item": [
+        {
+          "name": "Signup",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rider One\",\n  \"email\": \"{{user_email}}\",\n  \"password\": \"{{user_password}}\",\n  \"role\": \"rider\"\n}"
+            },
+            "url": {
+              "raw": "{{auth_base_url}}/api/auth/signup",
+              "host": [
+                "{{auth_base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "signup"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.token) {",
+                  "  pm.environment.set('auth_token', json.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{user_email}}\",\n  \"password\": \"{{user_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{auth_base_url}}/api/auth/login",
+              "host": [
+                "{{auth_base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Health Checks",
+      "item": [
+        {
+          "name": "Ride Health",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{ride_base_url}}/health",
+              "host": [
+                "{{ride_base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Driver Health",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{driver_base_url}}/health",
+              "host": [
+                "{{driver_base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Matching Health",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{matching_base_url}}/health",
+              "host": [
+                "{{matching_base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Trip Health",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{trip_base_url}}/health",
+              "host": [
+                "{{trip_base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Payment Health",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{payment_base_url}}/health",
+              "host": [
+                "{{payment_base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Notification Health",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{notification_base_url}}/health",
+              "host": [
+                "{{notification_base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Ride Service",
+      "item": [
+        {
+          "name": "Create Ride",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.id) {",
+                  "  pm.environment.set('ride_id', json.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"riderId\": \"rider-001\",\n  \"pickup\": \"{{pickup}}\",\n  \"destination\": \"{{destination}}\"\n}"
+            },
+            "url": {
+              "raw": "{{ride_base_url}}/api/rides",
+              "host": [
+                "{{ride_base_url}}"
+              ],
+              "path": [
+                "api",
+                "rides"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Ride",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{ride_base_url}}/api/rides/{{ride_id}}",
+              "host": [
+                "{{ride_base_url}}"
+              ],
+              "path": [
+                "api",
+                "rides",
+                "{{ride_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Ride Status",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"MATCHED\"\n}"
+            },
+            "url": {
+              "raw": "{{ride_base_url}}/api/rides/{{ride_id}}/status",
+              "host": [
+                "{{ride_base_url}}"
+              ],
+              "path": [
+                "api",
+                "rides",
+                "{{ride_id}}",
+                "status"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Driver Service",
+      "item": [
+        {
+          "name": "Update Driver Location",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lat\": 12.9716,\n  \"lng\": 77.5946\n}"
+            },
+            "url": {
+              "raw": "{{driver_base_url}}/api/drivers/{{driver_id}}/location",
+              "host": [
+                "{{driver_base_url}}"
+              ],
+              "path": [
+                "api",
+                "drivers",
+                "{{driver_id}}",
+                "location"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Find Nearby Drivers",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{driver_base_url}}/api/drivers/nearby?lat=12.9716&lng=77.5946&radius=5",
+              "host": [
+                "{{driver_base_url}}"
+              ],
+              "path": [
+                "api",
+                "drivers",
+                "nearby"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "12.9716"
+                },
+                {
+                  "key": "lng",
+                  "value": "77.5946"
+                },
+                {
+                  "key": "radius",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Matching Service",
+      "item": [
+        {
+          "name": "Match Drivers",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rideId\": {{ride_id}},\n  \"pickupLat\": 12.9716,\n  \"pickupLng\": 77.5946\n}"
+            },
+            "url": {
+              "raw": "{{matching_base_url}}/api/match",
+              "host": [
+                "{{matching_base_url}}"
+              ],
+              "path": [
+                "api",
+                "match"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Accept Ride",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rideId\": {{ride_id}},\n  \"driverId\": \"{{driver_id}}\",\n  \"idempotencyKey\": \"{{idempotency_key}}\"\n}"
+            },
+            "url": {
+              "raw": "{{matching_base_url}}/api/match/accept",
+              "host": [
+                "{{matching_base_url}}"
+              ],
+              "path": [
+                "api",
+                "match",
+                "accept"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Trip Service",
+      "item": [
+        {
+          "name": "Create Trip",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json && json.id) {",
+                  "  pm.environment.set('trip_id', json.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rideId\": {{ride_id}},\n  \"driverId\": \"{{driver_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{trip_base_url}}/api/trips",
+              "host": [
+                "{{trip_base_url}}"
+              ],
+              "path": [
+                "api",
+                "trips"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Trip",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{trip_base_url}}/api/trips/{{trip_id}}",
+              "host": [
+                "{{trip_base_url}}"
+              ],
+              "path": [
+                "api",
+                "trips",
+                "{{trip_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Complete Trip",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "url": {
+              "raw": "{{trip_base_url}}/api/trips/{{trip_id}}/complete",
+              "host": [
+                "{{trip_base_url}}"
+              ],
+              "path": [
+                "api",
+                "trips",
+                "{{trip_id}}",
+                "complete"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Payment Service",
+      "item": [
+        {
+          "name": "Get Payment By Trip",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{payment_base_url}}/api/api/payments/{{trip_id}}",
+              "host": [
+                "{{payment_base_url}}"
+              ],
+              "path": [
+                "api",
+                "api",
+                "payments",
+                "{{trip_id}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Suggested Flow",
+      "item": [
+        {
+          "name": "01 Signup",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rider One\",\n  \"email\": \"{{user_email}}\",\n  \"password\": \"{{user_password}}\",\n  \"role\": \"rider\"\n}"
+            },
+            "url": {
+              "raw": "{{auth_base_url}}/api/auth/signup",
+              "host": [
+                "{{auth_base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "signup"
+              ]
+            }
+          }
+        },
+        {
+          "name": "02 Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.token) pm.environment.set('auth_token', json.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{user_email}}\",\n  \"password\": \"{{user_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{auth_base_url}}/api/auth/login",
+              "host": [
+                "{{auth_base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "03 Update Driver Location",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lat\": 12.9716,\n  \"lng\": 77.5946\n}"
+            },
+            "url": {
+              "raw": "{{driver_base_url}}/api/drivers/{{driver_id}}/location",
+              "host": [
+                "{{driver_base_url}}"
+              ],
+              "path": [
+                "api",
+                "drivers",
+                "{{driver_id}}",
+                "location"
+              ]
+            }
+          }
+        },
+        {
+          "name": "04 Create Ride",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.id) pm.environment.set('ride_id', json.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"riderId\": \"rider-001\",\n  \"pickup\": \"{{pickup}}\",\n  \"destination\": \"{{destination}}\"\n}"
+            },
+            "url": {
+              "raw": "{{ride_base_url}}/api/rides",
+              "host": [
+                "{{ride_base_url}}"
+              ],
+              "path": [
+                "api",
+                "rides"
+              ]
+            }
+          }
+        },
+        {
+          "name": "05 Match Drivers",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rideId\": {{ride_id}},\n  \"pickupLat\": 12.9716,\n  \"pickupLng\": 77.5946\n}"
+            },
+            "url": {
+              "raw": "{{matching_base_url}}/api/match",
+              "host": [
+                "{{matching_base_url}}"
+              ],
+              "path": [
+                "api",
+                "match"
+              ]
+            }
+          }
+        },
+        {
+          "name": "06 Accept Ride",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rideId\": {{ride_id}},\n  \"driverId\": \"{{driver_id}}\",\n  \"idempotencyKey\": \"{{idempotency_key}}\"\n}"
+            },
+            "url": {
+              "raw": "{{matching_base_url}}/api/match/accept",
+              "host": [
+                "{{matching_base_url}}"
+              ],
+              "path": [
+                "api",
+                "match",
+                "accept"
+              ]
+            }
+          }
+        },
+        {
+          "name": "07 Get Ride",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{ride_base_url}}/api/rides/{{ride_id}}",
+              "host": [
+                "{{ride_base_url}}"
+              ],
+              "path": [
+                "api",
+                "rides",
+                "{{ride_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "08 Get Trip Or Create Manually",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rideId\": {{ride_id}},\n  \"driverId\": \"{{driver_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{trip_base_url}}/api/trips",
+              "host": [
+                "{{trip_base_url}}"
+              ],
+              "path": [
+                "api",
+                "trips"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
