@@ -22,6 +22,7 @@ require('dotenv').config();
 require('newrelic');
 
 const express = require('express');
+const cors = require('cors');
 
 const PostgresRideRepository = require('./repositories/postgresRideRepository');
 const RideService = require('./services/rideService');
@@ -33,6 +34,7 @@ const RideDLQConsumer = require('./consumers/rideDLQConsumers');
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 // Dependency Injection
 const rideRepo = new PostgresRideRepository();

@@ -16,5 +16,16 @@ CREATE TABLE IF NOT EXISTS trips (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+
 CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_ride
 ON trips (ride_id);
+
+
+CREATE TABLE IF NOT EXISTS payments (
+  id SERIAL PRIMARY KEY,
+  trip_id INT,
+  amount FLOAT,
+  status VARCHAR(50),
+  transaction_id VARCHAR(100),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

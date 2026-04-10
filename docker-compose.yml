@@ -1,7 +1,4 @@
-version: '3.8'
-
 services:
-
   ride-service:
     build: ./services/ride-service
     container_name: ride-service
@@ -9,16 +6,15 @@ services:
       - "3001:3001"
     depends_on:
       - redis
-      - kafka
       - postgres
     environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - KAFKA_BROKER=kafka:9092
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - PORT=3001
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      DB_HOST: postgres
+      DB_PORT: 5432
+      PORT: 3001
     restart: always
+
   driver-service:
     build: ./services/driver-service
     container_name: driver-service
@@ -27,10 +23,11 @@ services:
     depends_on:
       - redis
     environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - PORT=3002 
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      PORT: 3002
     restart: always
+
   matching-service:
     build: ./services/matching-service
     container_name: matching-service
@@ -38,31 +35,63 @@ services:
       - "3003:3003"
     depends_on:
       - redis
-      - kafka
       - driver-service
+      - ride-service
+      - trip-service
     environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - KAFKA_BROKER=kafka:9092
-      - DRIVER_SERVICE_URL=http://driver-service:3002
-      - RIDE_SERVICE_URL=http://ride-service:3001
-      - TRIP_SERVICE_URL=http://trip-service:3004
-      - PORT=3003
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      DRIVER_SERVICE_URL: http://driver-service:3002
+      RIDE_SERVICE_URL: http://ride-service:3001
+      TRIP_SERVICE_URL: http://trip-service:3004
+      PORT: 3003
     restart: unless-stopped
+
   trip-service:
     build: ./services/trip-service
     container_name: trip-service
     ports:
       - "3004:3004"
     depends_on:
-      - kafka
       - postgres
+      - redis
     environment:
-      KAFKA_BROKERS: kafka:9092
       DB_HOST: postgres
       DB_PORT: 5432
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
       PORT: 3004
     restart: always
+
+  payment-service:
+    build: ./services/payment-service
+    container_name: payment-service
+    ports:
+      - "3005:3005"
+    depends_on:
+      - redis
+      - postgres
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      DB_HOST: postgres
+      DB_PORT: 5432
+      PORT: 3005
+    restart: always
+
+  notification-service:
+    build: ./services/notification-service
+    container_name: notification-service
+    ports:
+      - "3006:3006"
+    depends_on:
+      - redis
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      PORT: 3006
+    restart: always
+
   postgres:
     image: postgres:15
     container_name: postgres
@@ -86,30 +115,40 @@ services:
     volumes:
       - redis_data:/data
 
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.5.0
-    container_name: zookeeper
-    restart: always
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
+  # zookeeper:
+  #   image: confluentinc/cp-zookeeper:7.5.0
+  #   container_name: zookeeper
+  #   restart: always
+  #   environment:
+  #     ZOOKEEPER_CLIENT_PORT: 2181
 
-  kafka:
-    image: confluentinc/cp-kafka:7.5.0
-    container_name: kafka
-    restart: always
-    ports:
-      - "9092:9092"   # internal
-      - "9093:9093"   # external
-    depends_on:
-      - zookeeper
-    environment:
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9093
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  # kafka:
+  #   image: confluentinc/cp-kafka:7.5.0
+  #   container_name: kafka
+  #   restart: always
+  #   ports:
+  #     - "9092:9092"
+  #     - "9093:9093"
+  #   depends_on:
+  #     - zookeeper
+  #   environment:
+  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  #     KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:9093
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9093
+  #     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+  #     KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+  #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
+  # kafka-ui:
+  #   image: provectuslabs/kafka-ui:latest
+  #   container_name: kafka-ui
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     - kafka
+  #   environment:
+  #     KAFKA_CLUSTERS_0_NAME: local
+  #     KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
 
 volumes:
   postgres_data:
